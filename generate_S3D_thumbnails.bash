@@ -17,16 +17,21 @@
 SCREENCAPTURE="/usr/sbin/screencapture"
 BASE64="/usr/bin/base64"
 
+bpfix="/usr/local"
+# try to auto-handle case of Apple Silicon Mac Homebrew installation
+if [ -x /opt/homebrew/bin/brew ] ; then
+    bpfix="$(/opt/homebrew/bin/brew --prefix)"
+fi
+
 # assumes these installed using Homebrew
-bpfix="$(brew --prefix)"
 GETWINDOWID="${bpfix}/bin/GetWindowID"
 CONVERT="${bpfix}/bin/convert"
 IDENTIFY="${bpfix}/bin/identify"
 
 INSTALL_DIR=`dirname "$0"`/
-#INSTALL_DIR="${HOME}/projects/3dprint/s3d-thumbnail-generator-macos/"
+#INSTALL_DIR="${HOME}/projects/3dprint/s3d-thumbnails/"
 
-# Gcode file is first argument
+# Gcode file is first argument ( "[output_filepath]" )
 GCODE="${1:-sample.gcode}"
 
 WORKDIR="$TMPDIR"
