@@ -1,9 +1,9 @@
-#!/bin/bash
 #!/bin/bash -x
+#!/bin/bash
 
 ## macos 3D print thumbnail generator script
 
-## Version 0.1.1
+## Version 0.1.2
 ## David Crook
 
 #
@@ -16,9 +16,12 @@
 
 SCREENCAPTURE="/usr/sbin/screencapture"
 BASE64="/usr/bin/base64"
-GETWINDOWID="/usr/local/bin/GetWindowID"
-CONVERT="/usr/local/bin/convert"
-IDENTIFY="/usr/local/bin/identify"
+
+# assumes these installed using Homebrew
+bpfix="$(brew --prefix)"
+GETWINDOWID="${bpfix}/bin/GetWindowID"
+CONVERT="${bpfix}/bin/convert"
+IDENTIFY="${bpfix}/bin/identify"
 
 INSTALL_DIR=`dirname "$0"`/
 #INSTALL_DIR="${HOME}/projects/3dprint/s3d-thumbnail-generator-macos/"
@@ -29,15 +32,15 @@ GCODE="${1:-sample.gcode}"
 WORKDIR="$TMPDIR"
 #WORKDIR="$INSTALL_DIR"
 
-RETINA_MODE=1
+RETINA_2X_MODE_DETECTED=0
 TWO_THUMBNAILS=1
 DEFAULT_APP_WIDTH=1100
 DEFAULT_APP_HEIGHT=775
 
-touch "${INSTALL_DIR}running"
-# echo $WORKDIR > "${INSTALL_DIR}workdir"
-# echo $GCODE > "${INSTALL_DIR}arg1"
-# echo "$@" > "${INSTALL_DIR}args"
+touch "${INSTALL_DIR}runtimestamp"
+echo "$@" > "${INSTALL_DIR}args"
+echo "$WORKDIR" > "${INSTALL_DIR}workdir"
+echo "$GCODE" > "${INSTALL_DIR}gcode"
 
 ### Get Window ID for Simplify3D window
 
@@ -74,34 +77,36 @@ else
     wintitle=""
 fi
 
-# on retina display the "size" is from 2x bitmap
-if [[ $RETINA_MODE == "1" ]] ; then
-    imgwidth=$((appwidth * 2))
-    imgheight=$((appheight * 2))
-else
-    imgwidth=$((appwidth * 1))
-    imgheight=$((appheight * 1))
-fi
-
 "${SCREENCAPTURE}" -x -o -l${winid} "${WORKDIR}window.png"
 #     -T <seconds> Take the picture after a delay of <seconds>, default is
 #     -x           Do not play sounds.
 #     -o           In window capture mode, do not capture the shadow of the window.
 #     -l <windowid> Captures the window with windowid.
 
+# on retina display the "size" is from 2x bitmap
+winpngdimw=$("${IDENTIFY}" -ping -format '%[w]' "${WORKDIR}window.png")
+winpngdimh=$("${IDENTIFY}" -ping -format '%[w]' "${WORKDIR}window.png")
+
+if [[ "${winpngdimw}" == $((appwidth * 2)) ]]; then
+    RETINA_2X_MODE_DETECTED=1
+    echo RETINA_2X_MODE_DETECTED=$RETINA_2X_MODE_DETECTED
+fi
+
 #########################################################################
-# Can tweak values below to match custom Simplify3D window layout
+# Position the crop bounding box
+#
+# Can tweak calculations below to match custom Simplify3D window layout
 ########################################################################
 
-# these two are the size of the image crop. here, it calculates relative to
-# total window size
-cropw=$(( imgwidth / 2 ))
-croph=$(( imgheight / 2 ))
+# these two are the size of the resulting image crop. here, it calculates
+# relative to total dimensions of window captured
+cropw=$(( winpngdimw * 3 / 7 ))   #  3/7 or 43%
+croph=$(( winpngdimh * 7 / 20 ))  #  7/20 or 35%
 
 # these are for the upper left corner (origin) to start the crop, within the
-# total window
-cropwinset=$(( imgwidth / 3 + 20))
-crophinset=$(( imgwidth / 4 ))
+# total window captured
+cropwinset=$(( winpngdimw * 2 / 5 ))  # 40%
+crophinset=$(( winpngdimh * 1 / 4 ))  # 25%
 
 "${CONVERT}" "${WORKDIR}window.png" -crop ${cropw}x${croph}+${cropwinset}+${crophinset} "${WORKDIR}cropped.png"
 
@@ -140,5 +145,6 @@ set -o xtrace
 sed -i '' 's/^/; /' "${WORKDIR}base64.txt"
 
 # prepend the thumbnails to original gcode file
+cp -f "$GCODE" "$GCODE".orig
 cat "${WORKDIR}base64.txt" "$GCODE" > "${WORKDIR}newFile.gcode"
 mv "${WORKDIR}newFile.gcode" "$GCODE"

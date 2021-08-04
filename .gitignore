@@ -1,2 +1,6 @@
 *.gcode
-running
+sample.gcode.orig
+runtimestamp
+workdir
+args
+gcode
