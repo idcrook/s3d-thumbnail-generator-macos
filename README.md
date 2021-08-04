@@ -60,7 +60,7 @@ With [Slicer Thumbnails](https://plugins.octoprint.org/plugins/prusaslicerthumbn
 
 The thumbnail is captured from the Simplify3D application window when the sliced .gcode file **is saved**.
 
-If you prefer the non-sliced preview version, in Application **Preferences** in the *Visualization* tab, uncheck
+If you prefer the non-sliced preview version, in Application *Preferences* in the *Visualization* tab, uncheck
 
 - [ ] "Automatically load preview after slicing"
 
@@ -68,7 +68,9 @@ If you prefer the non-sliced preview version, in Application **Preferences** in 
 
 ### Customize crop size and position
 
-The image crop and dimension settings may be unique to the preview type and your macOS desktop setup. These are adjustable in the script. Look for the in the bash script for the section starting at the line `# Position the crop bounding box`
+The image crop and dimension settings may be unique to the preview type and your macOS desktop setup.
+
+These are adjustable in the script. Look for the in the bash script for the section starting at the line `# Position the crop bounding box`
 
 ## SEE ALSO
 
