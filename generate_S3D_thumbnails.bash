@@ -1,9 +1,9 @@
-#!/bin/bash -x
 #!/bin/bash
+#!/bin/bash -x
 
 ## macos 3D print thumbnail generator script
 
-## Version 0.1.2
+## Version 0.2.0
 ## David Crook
 
 #
@@ -42,10 +42,11 @@ TWO_THUMBNAILS=1
 DEFAULT_APP_WIDTH=1100
 DEFAULT_APP_HEIGHT=775
 
+# Debug helpers
 touch "${INSTALL_DIR}runtimestamp"
-echo "$@" > "${INSTALL_DIR}args"
-echo "$WORKDIR" > "${INSTALL_DIR}workdir"
-echo "$GCODE" > "${INSTALL_DIR}gcode"
+# echo "$@" > "${INSTALL_DIR}args"
+# echo "$WORKDIR" > "${INSTALL_DIR}workdir"
+# echo "$GCODE" > "${INSTALL_DIR}gcode"
 
 ### Get Window ID for Simplify3D window
 
