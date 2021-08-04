@@ -3,7 +3,7 @@
 
 ## macos 3D print thumbnail generator script
 
-## Version 0.1.0
+## Version 0.1.1
 ## David Crook
 
 #
@@ -136,11 +136,3 @@ sed -i '' 's/^/; /' "${WORKDIR}base64.txt"
 # prepend the thumbnails to original gcode file
 cat "${WORKDIR}base64.txt" "$GCODE" > "${WORKDIR}newFile.gcode"
 mv "${WORKDIR}newFile.gcode" "$GCODE"
-
-### Archived
-
-# osascript -e "tell application \"System Events\" to get the {title, id} of every window of (every process whose visible is true)"
-# osascript -e "tell application \"System Events\" to get the properties of every window of (every process whose visible is true)"
-
-# the applescript way only works with apps that have OSA interface
-# -l$(osascript -e 'tell app "Safari" to id of window 1')
