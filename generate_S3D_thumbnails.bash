@@ -7,7 +7,7 @@
 ## David Crook
 
 #
-# - requires imagemagick (convert)
+# - requires imagemagick (convert, identify)
 # - requires getwindowid util -  https://github.com/smokris/GetWindowID
 #
 #   brew install imagemagick
@@ -66,11 +66,12 @@ else
     winid=root
 fi
 
-# screencapture can accept a window title, but window ID is all that is needed
+# screencapture can accept a window title, but window ID (above) is all that is
+# needed
 if [[ "$winidinfo" =~ \"([^\"]+)\" ]] ; then
     wintitle=${BASH_REMATCH[1]}
 else
-    wintitle=root
+    wintitle=""
 fi
 
 # on retina display the "size" is from 2x bitmap
@@ -92,21 +93,24 @@ fi
 # Can tweak values below to match custom Simplify3D window layout
 ########################################################################
 
-# these two are the size of the image crop
+# these two are the size of the image crop. here, it calculates relative to
+# total window size
 cropw=$(( imgwidth / 2 ))
 croph=$(( imgheight / 2 ))
 
-# these are for the upper left corner (origin) to start the crop
+# these are for the upper left corner (origin) to start the crop, within the
+# total window
 cropwinset=$(( imgwidth / 3 + 20))
 crophinset=$(( imgwidth / 4 ))
 
 "${CONVERT}" "${WORKDIR}window.png" -crop ${cropw}x${croph}+${cropwinset}+${crophinset} "${WORKDIR}cropped.png"
 
-## Two thumbnails may be creaate
+## Two thumbnails may be created
 
 # First thumbnail: a tiny 32x32 px thumbnail
 "${CONVERT}" "${WORKDIR}cropped.png" -resize 32x32 "${WORKDIR}sm_thumb.png"
 
+# turn off debug tracing output
 set +o xtrace
 
 OUTPUT=$("${BASE64}" "${WORKDIR}sm_thumb.png")
@@ -129,8 +133,10 @@ if [[ "${TWO_THUMBNAILS}" == "1" ]] ; then
     echo "thumbnail end" >> "${WORKDIR}base64.txt"
 fi
 
+# turn on debug tracing output
 set -o xtrace
 
+# these need to be embedded as gcode comments
 sed -i '' 's/^/; /' "${WORKDIR}base64.txt"
 
 # prepend the thumbnails to original gcode file
