@@ -1,14 +1,14 @@
 #!/bin/bash
 #!/bin/bash -x
 
-## macos 3D print thumbnail generator script
+## macOS Simplify3D (gcode post-process) thumbnail preview generator
 
 ## Version 0.2.0
 ## David Crook
 
 #
 # - requires imagemagick (convert, identify)
-# - requires getwindowid util -  https://github.com/smokris/GetWindowID
+# - requires GetWindowID util -  https://github.com/smokris/GetWindowID
 #
 #   brew install imagemagick
 #   brew install smokris/getwindowid/getwindowid
