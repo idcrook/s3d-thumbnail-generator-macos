@@ -145,6 +145,5 @@ set -o xtrace
 sed -i '' 's/^/; /' "${WORKDIR}base64.txt"
 
 # prepend the thumbnails to original gcode file
-cp -f "$GCODE" "$GCODE".orig
 cat "${WORKDIR}base64.txt" "$GCODE" > "${WORKDIR}newFile.gcode"
 mv "${WORKDIR}newFile.gcode" "$GCODE"
