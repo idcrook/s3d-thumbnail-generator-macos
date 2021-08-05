@@ -2,7 +2,7 @@
 
 Tested with [Slicer Thumbnails](https://plugins.octoprint.org/plugins/prusaslicerthumbnails/) plugin for OctoPrint.
 
-Tested using **`Simplify3D.app`**  on macOS Big Sur on both Intel and Apple Silicon
+Tested on **`Simplify3D.app`** `4.1.2` in macOS Big Sur on both Intel and Apple Silicon
 
 ## Install
 
