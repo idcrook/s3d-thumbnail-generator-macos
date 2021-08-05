@@ -1,9 +1,9 @@
 #!/bin/bash
 #!/bin/bash -x
 
-## macOS Simplify3D (gcode post-process) thumbnail preview generator
+## Embed thumbnail previews in gcode for macOS Simplify3D (gcode post-process)
 
-## Version 0.2.0
+## Version 0.3.0
 ## David Crook
 
 #
@@ -38,7 +38,6 @@ WORKDIR="$TMPDIR"
 #WORKDIR="$INSTALL_DIR"
 
 RETINA_2X_MODE_DETECTED=0
-TWO_THUMBNAILS=1
 DEFAULT_APP_WIDTH=1100
 DEFAULT_APP_HEIGHT=775
 
@@ -47,6 +46,9 @@ touch "${INSTALL_DIR}runtimestamp"
 # echo "$@" > "${INSTALL_DIR}args"
 # echo "$WORKDIR" > "${INSTALL_DIR}workdir"
 # echo "$GCODE" > "${INSTALL_DIR}gcode"
+
+# store state of xtrace option.
+TRACESTATE="$(shopt -po xtrace)"
 
 ### Get Window ID for Simplify3D window
 
@@ -75,12 +77,14 @@ else
     winid=root
 fi
 
-# screencapture can accept a window title, but window ID (above) is all that is
-# needed
+# get windows title - not currently used
+#
+# screencapture accepts a window title, but window ID is all that is needed
 if [[ "$winidinfo" =~ \"([^\"]+)\" ]] ; then
     wintitle=${BASH_REMATCH[1]}
 else
     wintitle=""
+    echo "$wintitle - No window title found"
 fi
 
 "${SCREENCAPTURE}" -x -o -l${winid} "${WORKDIR}window.png"
@@ -89,11 +93,11 @@ fi
 #     -o           In window capture mode, do not capture the shadow of the window.
 #     -l <windowid> Captures the window with windowid.
 
-# on retina display the "size" is from 2x bitmap
 winpngdimw=$("${IDENTIFY}" -ping -format '%[w]' "${WORKDIR}window.png")
-winpngdimh=$("${IDENTIFY}" -ping -format '%[w]' "${WORKDIR}window.png")
+winpngdimh=$("${IDENTIFY}" -ping -format '%[h]' "${WORKDIR}window.png")
 
-if [[ "${winpngdimw}" == $((appwidth * 2)) ]]; then
+# On display in retina mode the captured "size" is 2x window size
+if [[ "${winpngdimw}" == $((appwidth * 2)) && "${winpngdimh}" == $((appheight * 2)) ]]; then
     RETINA_2X_MODE_DETECTED=1
     echo RETINA_2X_MODE_DETECTED=$RETINA_2X_MODE_DETECTED
 fi
@@ -106,50 +110,47 @@ fi
 
 # these two are the size of the resulting image crop. here, it calculates
 # relative to total dimensions of window captured
-cropw=$(( winpngdimw * 3 / 7 ))   #  3/7 or 43%
-croph=$(( winpngdimh * 7 / 20 ))  #  7/20 or 35%
+cropw=$(( winpngdimw * 3 / 7 ))   #   3/7 or 43%
+croph=$(( winpngdimh * 10 / 20 )) #  10/20 or 50%
 
 # these are for the upper left corner (origin) to start the crop, within the
 # total window captured
-cropwinset=$(( winpngdimw * 2 / 5 ))  # 40%
-crophinset=$(( winpngdimh * 1 / 4 ))  # 25%
+cropwinset=$(( winpngdimw * 7 / 20 ))  # 35%
+crophinset=$(( winpngdimh * 5 / 20 ))  # 25%
 
 "${CONVERT}" "${WORKDIR}window.png" -crop ${cropw}x${croph}+${cropwinset}+${crophinset} "${WORKDIR}cropped.png"
 
-## Two thumbnails may be created
+########################################################################
+## Create two thumbnails
+########################################################################
+echo "" > "${WORKDIR}base64.txt"
 
 # First thumbnail: a tiny 32x32 px thumbnail
 "${CONVERT}" "${WORKDIR}cropped.png" -resize 32x32 "${WORKDIR}sm_thumb.png"
-
-# turn off debug tracing output
-set +o xtrace
-
+set +o xtrace       # turn off debug tracing output
 OUTPUT=$("${BASE64}" "${WORKDIR}sm_thumb.png")
-
-echo "" > "${WORKDIR}base64.txt"
-
 echo "thumbnail begin 32x32 ${#OUTPUT}" >> "${WORKDIR}base64.txt"
 echo "${OUTPUT}" >> "${WORKDIR}base64.txt"
 echo "thumbnail end" >> "${WORKDIR}base64.txt"
+eval "$TRACESTATE"  # restore state of xtrace option.
 
 # Second thumbnail: takes crop and resizes/scales to 400px wide image
-if [[ "${TWO_THUMBNAILS}" == "1" ]] ; then
-    "${CONVERT}" "${WORKDIR}cropped.png" -resize 400x  "${WORKDIR}bigthumb.png"
-    bigthumbdim=$("${IDENTIFY}" -ping -format '%[w]x%[h]' "${WORKDIR}bigthumb.png")
-    OUTPUT=$("${BASE64}" "${WORKDIR}bigthumb.png")
-    # include image dimensions and length of base64 encode string
-    echo "${bigthumbdim} ${#OUTPUT}"
-    echo "thumbnail begin ${bigthumbdim} ${#OUTPUT}" >> "${WORKDIR}base64.txt"
-    echo "${OUTPUT}" >> "${WORKDIR}base64.txt"
-    echo "thumbnail end" >> "${WORKDIR}base64.txt"
-fi
+"${CONVERT}" "${WORKDIR}cropped.png" -resize 400x  "${WORKDIR}bigthumb.png"
+bigthumbdim=$("${IDENTIFY}" -ping -format '%[w]x%[h]' "${WORKDIR}bigthumb.png")
+set +o xtrace # turn off debug tracing output
+OUTPUT=$("${BASE64}" "${WORKDIR}bigthumb.png")
+# include image dimensions and length of base64 encode string
+echo "${bigthumbdim} ${#OUTPUT}"
+echo "thumbnail begin ${bigthumbdim} ${#OUTPUT}" >> "${WORKDIR}base64.txt"
+echo "${OUTPUT}" >> "${WORKDIR}base64.txt"
+echo "thumbnail end" >> "${WORKDIR}base64.txt"
+eval "$TRACESTATE"  # restore state of xtrace option.
 
-# turn on debug tracing output
-set -o xtrace
-
-# these need to be embedded as gcode comments
+########################################################################
+## prepend the thumbnails to original gcode file
+########################################################################
+# all these lines need to be embedded as gcode comments
 sed -i '' 's/^/; /' "${WORKDIR}base64.txt"
 
-# prepend the thumbnails to original gcode file
 cat "${WORKDIR}base64.txt" "$GCODE" > "${WORKDIR}newFile.gcode"
 mv "${WORKDIR}newFile.gcode" "$GCODE"
