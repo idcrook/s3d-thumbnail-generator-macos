@@ -74,9 +74,9 @@ These are adjustable in the script. Look for the in the bash script for the sect
 
 ### Manually run script
 
-With **`Simplify3D.app`**, the thumbnail embedding script can be run on a "dummy" gcode file to confirm that is has been set up correctly and/or for iterating on thumbnail scrop area.
+With **`Simplify3D.app`** open, the thumbnail embedding script can be run on a "dummy" gcode file to confirm that it has been set up correctly or for iterating on thumbnail crop area.
 
-For example, on my Mac that has `zsh` as my terminal shell:
+For example, on my Mac that has `zsh` as my terminal shell (long lines truncated in the `less` output):
 
 ```console
 $ cd ~/projects/3dprint/s3d-thumbnails
