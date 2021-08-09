@@ -32,6 +32,7 @@ Tested on **`Simplify3D.app`** `4.1.2` in macOS Big Sur on both Intel and Apple 
     /Users/username/projects/3dprint/s3d-thumbnails/generate_S3D_thumbnails.bash "[output_filepath]"
     ```
 
+     - `%%USERNAME%%` in the line above is meant to be replaced with your Mac account username.
      - This is added in `Additional terminal commands for post processing` in the *Scripts* tab in *Process* settings, e.g.
 
      ![Main window - Edit process settings](img/edit_process_settings.png)
@@ -44,15 +45,12 @@ Tested on **`Simplify3D.app`** `4.1.2` in macOS Big Sur on both Intel and Apple 
 
    - This is so the post-processing script can automatically screen capture the Simplify3D app window
 
-
-
  - The preview thumbnail is obtained directly from the Simplify3D application window.
 
 
 With [Slicer Thumbnails](https://plugins.octoprint.org/plugins/prusaslicerthumbnails/) plugin for Octoprint enabled, the thumbnail can be viewed from web interface.
 
 ![OctoPrint - View thumbnail](img/thumbnail_in_octoprint.png)
-
 
 ## Additional Settings
 
@@ -71,6 +69,38 @@ If you prefer the non-sliced preview version, in Application *Preferences* in th
 The image crop and dimension settings may be unique to the preview type and your macOS desktop setup.
 
 These are adjustable in the script. Look for the in the bash script for the section starting at the line `# Position the crop bounding box`
+
+## Troubleshooting
+
+### Manually run script
+
+With **`Simplify3D.app`**, the thumbnail embedding script can be run on a "dummy" gcode file to confirm that is has been set up correctly and/or for iterating on thumbnail scrop area.
+
+For example, on my Mac that has `zsh` as my terminal shell:
+
+```console
+$ cd ~/projects/3dprint/s3d-thumbnails
+$ echo END >! sample.gcode && ./generate_S3D_thumbnails.bash
+400x469 237992
+$ less sample.gcode
+;
+; thumbnail begin 32x32 3012
+; iVBORw0KGgoAAAANSUhEUgAAABsAAAAgCAMAAADUt/MJAAABNWlDQ1BpY2MAACiRY2Bg4kksKMhhYW
+; thumbnail end
+; thumbnail begin 400x469 237992
+; iVBORw0KGgoAAAANSUhEUgAAAZAAAAHVCAYAAADfKq0TAAABNWlDQ1BpY2MAACiRY2Bg4kksKMhhYW
+; thumbnail end
+END
+$ open $TMPDIR/bigthumb.png
+```
+
+### Enable script tracing
+
+To turn on generic bash command tracing, change the first line of the bash script to include the `-x` option.
+
+```
+#!/bin/bash -x
+```
 
 ## SEE ALSO
 

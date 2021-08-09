@@ -2,10 +2,14 @@
 #!/bin/bash -x
 
 ## Embed thumbnail previews in gcode for macOS Simplify3D (gcode post-process)
-
 ## Version 0.3.0
 ## David Crook
 
+# USAGE
+#
+#     generate_S3D_thumbnails.bash  file_to_embed_thumbnails_in.gcode
+#
+# INSTALL
 #
 # - requires imagemagick (convert, identify)
 # - requires GetWindowID util -  https://github.com/smokris/GetWindowID
@@ -41,14 +45,18 @@ RETINA_2X_MODE_DETECTED=0
 DEFAULT_APP_WIDTH=1100
 DEFAULT_APP_HEIGHT=775
 
-# Debug helpers
-touch "${INSTALL_DIR}runtimestamp"
-# echo "$@" > "${INSTALL_DIR}args"
-# echo "$WORKDIR" > "${INSTALL_DIR}workdir"
-# echo "$GCODE" > "${INSTALL_DIR}gcode"
-
 # store state of xtrace option.
 TRACESTATE="$(shopt -po xtrace)"
+
+# Debug helpers
+touch "${INSTALL_DIR}runtimestamp"
+
+# Include additional info if tracing turned on
+if [[ "${TRACESTATE}" == 'set -o xtrace' ]] ; then
+    echo "$@" > "${INSTALL_DIR}args"
+    echo "$WORKDIR" > "${INSTALL_DIR}workdir"
+    echo "$GCODE" > "${INSTALL_DIR}gcode"
+fi
 
 ### Get Window ID for Simplify3D window
 
