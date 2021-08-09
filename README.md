@@ -29,7 +29,7 @@ Tested on **`Simplify3D.app`** `4.1.2` in macOS Big Sur on both Intel and Apple 
 1. Add script invocation in Simplify 3D gcode post-processing
 
     ```shell
-    /Users/username/projects/3dprint/s3d-thumbnails/generate_S3D_thumbnails.bash "[output_filepath]"
+    /Users/%%USERNAME%%/projects/3dprint/s3d-thumbnails/generate_S3D_thumbnails.bash "[output_filepath]"
     ```
 
      - `%%USERNAME%%` in the line above is meant to be replaced with your Mac account username.
