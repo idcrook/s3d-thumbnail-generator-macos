@@ -72,6 +72,16 @@ These are adjustable in the script. Look for the in the bash script for the sect
 
 ## Troubleshooting
 
+### Getting list of app windows
+
+There is included an applescript that lists running application windows. It can be run as follows:
+
+```shell
+$ osascript window_list.scpt
+```
+
+This is from example found at <https://stackoverflow.com/a/59293280>
+
 ### Manually run script
 
 With **`Simplify3D.app`** open, the thumbnail embedding script can be run on a "dummy" gcode file to confirm that it has been set up correctly or for iterating on thumbnail crop area.
