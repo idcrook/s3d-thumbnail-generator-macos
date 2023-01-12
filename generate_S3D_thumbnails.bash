@@ -136,7 +136,9 @@ echo "" > "${WORKDIR}base64.txt"
 # First thumbnail: a tiny 32x32 px thumbnail
 "${CONVERT}" "${WORKDIR}cropped.png" -resize 32x32 "${WORKDIR}sm_thumb.png"
 set +o xtrace       # turn off debug tracing output
-OUTPUT=$("${BASE64}" "${WORKDIR}sm_thumb.png")
+b64cmd1="${BASE64} -i ${WORKDIR}sm_thumb.png"
+echo $b64cmd1
+OUTPUT=$($b64cmd1)
 echo "thumbnail begin 32x32 ${#OUTPUT}" >> "${WORKDIR}base64.txt"
 echo "${OUTPUT}" >> "${WORKDIR}base64.txt"
 echo "thumbnail end" >> "${WORKDIR}base64.txt"
@@ -146,7 +148,9 @@ eval "$TRACESTATE"  # restore state of xtrace option.
 "${CONVERT}" "${WORKDIR}cropped.png" -resize 400x  "${WORKDIR}bigthumb.png"
 bigthumbdim=$("${IDENTIFY}" -ping -format '%[w]x%[h]' "${WORKDIR}bigthumb.png")
 set +o xtrace # turn off debug tracing output
-OUTPUT=$("${BASE64}" "${WORKDIR}bigthumb.png")
+b64cmd2="${BASE64} -i ${WORKDIR}bigthumb.png"
+echo $b64cmd2
+OUTPUT=$($b64cmd2)
 # include image dimensions and length of base64 encode string
 echo "${bigthumbdim} ${#OUTPUT}"
 echo "thumbnail begin ${bigthumbdim} ${#OUTPUT}" >> "${WORKDIR}base64.txt"
