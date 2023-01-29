@@ -40,6 +40,8 @@ GCODE="${1:-sample.gcode}"
 
 WORKDIR="$TMPDIR"
 #WORKDIR="$INSTALL_DIR"
+# always add trailing slash
+WORKDIR="${WORKDIR%/}/"
 
 RETINA_2X_MODE_DETECTED=0
 DEFAULT_APP_WIDTH=1100
@@ -153,11 +155,19 @@ b64cmd2="${BASE64} -b 76 -i ${WORKDIR}bigthumb.png"
 set +o xtrace # turn off debug tracing output
 ##echo $b64cmd2
 OUTPUT=$($b64cmd2)
-# include image dimensions and length of base64 encode string
+
+# Include additional info if tracing turned on
+if [[ "${TRACESTATE}" == 'set -o xtrace' ]] ; then
+    echo "${bigthumbdim} ${#OUTPUT}" > "${INSTALL_DIR}bigthumbdim"
+fi
 echo "${bigthumbdim} ${#OUTPUT}"
+
+# include image dimensions and length of base64 encode string
 echo "thumbnail begin ${bigthumbdim} ${#OUTPUT}" >> "${WORKDIR}base64.txt"
 echo "${OUTPUT}" >> "${WORKDIR}base64.txt"
 echo "thumbnail end" >> "${WORKDIR}base64.txt"
+
+
 eval "$TRACESTATE"  # restore state of xtrace option.
 
 ########################################################################
