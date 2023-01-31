@@ -16,7 +16,9 @@
 #
 #   brew install imagemagick
 #   brew install smokris/getwindowid/getwindowid
-#
+
+# Assign 1 to save execution trace to file
+DEBUG_SAVE_EXECTRACE=1
 
 SCREENCAPTURE="/usr/sbin/screencapture"
 BASE64="/usr/bin/base64"
@@ -58,6 +60,15 @@ if [[ "${TRACESTATE}" == 'set -o xtrace' ]] ; then
     echo "$@" > "${INSTALL_DIR}args"
     echo "$WORKDIR" > "${INSTALL_DIR}workdir"
     echo "$GCODE" > "${INSTALL_DIR}gcode"
+
+    # capture stdout+stderr from this script running
+    # https://stackoverflow.com/a/314678
+    if [[ "${DEBUG_SAVE_EXECTRACE}" == 1 ]] ; then
+        echo Redirecting stdout and stderr to file
+        exectrace="${INSTALL_DIR}exectrace"
+        exec > "$exectrace"
+        exec 2>&1
+    fi
 fi
 
 ### Get Window ID for Simplify3D window
