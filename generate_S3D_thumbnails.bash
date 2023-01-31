@@ -18,7 +18,8 @@
 #   brew install smokris/getwindowid/getwindowid
 
 # Assign 1 to save execution trace to file
-DEBUG_SAVE_EXECTRACE=1
+DEBUG_SAVE_EXECTRACE=0
+#DEBUG_SAVE_EXECTRACE=1
 
 SCREENCAPTURE="/usr/sbin/screencapture"
 BASE64="/usr/bin/base64"
@@ -55,7 +56,7 @@ TRACESTATE="$(shopt -po xtrace)"
 # Debug helpers
 touch "${INSTALL_DIR}runtimestamp"
 
-# Include additional info if tracing turned on
+# Include additional info to files if tracing turned on
 if [[ "${TRACESTATE}" == 'set -o xtrace' ]] ; then
     echo "$@" > "${INSTALL_DIR}args"
     echo "$WORKDIR" > "${INSTALL_DIR}workdir"
@@ -73,13 +74,65 @@ fi
 
 ### Get Window ID for Simplify3D window
 
+# Run GetWindowID for Simplify3D app
+
 winidinfo=$(${GETWINDOWID} Simplify3D --list | grep Simplify3D)
 # "Simplify3D (Licensed to Firstname Lastname)" size=1100x775 id=1033
 
-# Check that Simplify3D was found
+# If Simplify3D v5 app window is always showing title of "(null)", DELETE app
+# from Screen Recording in Security and Privacy in System Preferences/Settings
+# app. When it gets added back, this should work properly again (includes
+# window title with app name, which we rely upon.)
+
+# Check that Simplify3D was found (i.e., grep was successful)
 if [ $? -eq 1 ] ; then
     echo "Could not find Simplify3D window. Exiting with error"
     exit 1
+fi
+
+# Was trying to assume lowest window id is app window.  This seems to be true
+# in Simplify3D V5, but this is not true in V4, so not using in service of
+# working with both.
+
+# ${IFS+"false"} && unset oldifs || oldifs="$IFS"    # Store IFS
+# IFS=$'\n' windowidlines=( $(${GETWINDOWID} Simplify3D --list ) )
+# ${oldifs+"false"} && unset IFS || IFS="$oldifs"    # restore IFS.
+# # Save/restore IFS shell built-in https://unix.stackexchange.com/a/264947
+
+# lowest_id=9999999
+# lowest_id_line=""
+# #echo ${#windowidlines[@]}
+# for idline in "${windowidlines[@]}" ; do
+#     #echo $idline
+#     if [[ "$idline" =~ id\=([0-9]+) ]] ; then
+#         winid=${BASH_REMATCH[1]}
+#         if (( $winid < $lowest_id )) ; then
+#             lowest_id=$winid
+#             lowest_id_line=$idline
+#         fi
+#     fi
+# done
+
+# # Check that Simplify3D was found
+# if [ $lowest_id -eq 9999999 ] ; then
+#     echo "Could not find Simplify3D window. Exiting with error"
+#     exit 1
+# fi
+
+# # Set window ID
+#if [[ "$lowest_id_line" =~ size\=([0-9]+)x([0-9]+) ]] ;
+# if (( $lowest_id < 9999999 )) ; then
+#     #echo "Found winid=$lowest_id"
+#     winid="$lowest_id"
+# else
+#     winid=root
+# fi
+
+# Get window ID
+if [[ "$winidinfo" =~ id\=([0-9]+) ]] ; then
+    winid=${BASH_REMATCH[1]}
+else
+    winid=root
 fi
 
 # extract window width and height
@@ -91,28 +144,12 @@ else
     appheight=$DEFAULT_APP_HEIGHT
 fi
 
-# get window ID
-if [[ "$winidinfo" =~ id\=([0-9]+) ]] ; then
-    winid=${BASH_REMATCH[1]}
-else
-    winid=root
-fi
-
-# get windows title - not currently used
-#
-# screencapture accepts a window title, but window ID is all that is needed
-if [[ "$winidinfo" =~ \"([^\"]+)\" ]] ; then
-    wintitle=${BASH_REMATCH[1]}
-else
-    wintitle=""
-    echo "$wintitle - No window title found"
-fi
-
-"${SCREENCAPTURE}" -x -o -l${winid} "${WORKDIR}window.png"
-#     -T <seconds> Take the picture after a delay of <seconds>, default is
-#     -x           Do not play sounds.
-#     -o           In window capture mode, do not capture the shadow of the window.
-#     -l <windowid> Captures the window with windowid.
+"${SCREENCAPTURE}" -tpng -x -o -a -l${winid} "${WORKDIR}window.png"
+# -t<format>  image format to create, default is png (other options include pdf, jpg, tiff and other formats)
+# -x           Do not play sounds.
+# -o           In window capture mode, do not capture the shadow of the window.
+# -a           do not include windows attached to selected windows
+# -l <windowid> Captures the window with windowid.
 
 winpngdimw=$("${IDENTIFY}" -ping -format '%[w]' "${WORKDIR}window.png")
 winpngdimh=$("${IDENTIFY}" -ping -format '%[h]' "${WORKDIR}window.png")
@@ -170,6 +207,7 @@ OUTPUT=$($b64cmd2)
 # Include additional info if tracing turned on
 if [[ "${TRACESTATE}" == 'set -o xtrace' ]] ; then
     echo "${bigthumbdim} ${#OUTPUT}" > "${INSTALL_DIR}bigthumbdim"
+    echo "${WORKDIR}bigthumb.png" > "${INSTALL_DIR}bigthumbfile"
 fi
 echo "${bigthumbdim} ${#OUTPUT}"
 

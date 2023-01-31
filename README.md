@@ -104,6 +104,28 @@ END
 $ open $TMPDIR/bigthumb.png
 ```
 
+#### Does manual run error saying 'Could not find Simplify3D window'
+
+First, check that the application is open. 😄
+
+If it is, then it is likely a macOS permissions problem.  Run the following command in a terminal with S3D app open:
+
+```
+GetWindowID Simplify3D --list
+```
+
+It should look something like
+
+```
+"(null)" size=0x0 id=651
+"Simplify3D (Licensed to xxxx xxxx)" size=1200x828 id=650
+```
+
+If all lines are instead like `"(null)"`, **DELETE** the entry in *Screen Recording* in `Privacy & Security` area in macOS *System Preferences/Settings* app.  Then try saving the .gcode file again. A dialog should pop up to prompt for setting the *Screen Recording* system permission for the app.
+
+Once it is grant thusly, app name should now show up properly in the `GetWindowID` list again.
+
+
 ### Enable script tracing
 
 To turn on generic bash command tracing, change the first line of the bash script to include the `-x` option.
