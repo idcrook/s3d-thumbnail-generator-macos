@@ -168,13 +168,13 @@ fi
 
 # these two are the size of the resulting image crop. here, it calculates
 # relative to total dimensions of window captured
+croph=$(( winpngdimh * 7 / 20 )) #  11/20 or 55%
 cropw=$(( winpngdimw * 3 / 7 ))   #   3/7 or 43%
-croph=$(( winpngdimh * 11 / 20 )) #  11/20 or 55%
 
 # these are for the upper left corner (origin) to start the crop, within the
 # total window captured
-cropwinset=$(( winpngdimw * 7 / 20 ))  # 35%
-crophinset=$(( winpngdimh * 2 / 20 ))  # 10%
+crophinset=$(( winpngdimh *  9 / 20 ))  #
+cropwinset=$(( winpngdimw *  7 / 20 ))  # 35%
 
 "${CONVERT}" "${WORKDIR}window.png" -crop ${cropw}x${croph}+${cropwinset}+${crophinset} "${WORKDIR}cropped.png"
 
