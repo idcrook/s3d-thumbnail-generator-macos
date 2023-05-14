@@ -1,8 +1,14 @@
 # Insert gcode preview thumbnails for Simplify3D on macOS
 
+**IMPORTANT NOTE**: **_Simplify3D_** **`v5.1`** adds native support for thumbnails in `.gcode`. See [Release Notes](S3D_version_5.1_notes.md).
+
+  - **Recommended**: Use the built-in support starting with version 5.1 instead of this post-processing technique.
+  - Earlier versions of _Simplify3D_ should continue to work with this post-precessing step, but it has now been deprecated by the native support.
+
+
 Tested with [Slicer Thumbnails](https://plugins.octoprint.org/plugins/prusaslicerthumbnails/) plugin for OctoPrint.
 
-Tested on **`Simplify3D.app`** `4.1.2` in macOS Big Sur on both Intel and Apple Silicon
+Tested on **`Simplify3D.app`** `4.1.2` in macOS Big Sur on both Intel and Apple Silicon, and in  **`Simplify3D.app`** `5.0` in macOS Ventura.
 
 ## Install
 
